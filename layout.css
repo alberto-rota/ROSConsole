@@ -1,0 +1,14 @@
+Screen {
+    layout: grid;
+    grid-size: 3 2;
+}
+
+.box {
+    height: 100%;
+    border: solid green;
+}
+
+.button {
+    height: 50%;
+    width: 50%;
+}
