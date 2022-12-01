@@ -2,20 +2,18 @@
 
 import rospy
 from std_msgs.msg import Bool
-
+from textual.containers import Container
 from textual.app import App, ComposeResult
 from textual.widgets import Button, Header, Footer, Static, Label
 from textual.reactive import reactive
 
-class ButtonText(Static):
+class TopicButton(Static):
     
-    text = reactive("Not Pressed")
+    def compose(self) -> ComposeResult:
+        yield Button()
     
-    def toggle(self):
-        topics = rospy.get_published_topics()
-        self.text=str(topics)
-        # if self.text == "Pressed": self.text = "Not Pressed"
-        # else: self.text = "Pressed"
+    def update_topics(self):
+        pass
         
     def watch_text(self, newtext: str) -> None:
         self.update(self.text)
@@ -26,13 +24,21 @@ class SimplePanel(App):
         
     def on_button_pressed(self, event: Button.Pressed) -> None:
         event.button.variant="success"
-        textwidget = self.query_one(ButtonText)
-        textwidget.toggle()
+        textwidget = self.query_one(TopicButton)
+        textwidget.update_topics()
+        topics = rospy.get_published_topics()
+        self.text=str(topics)
+        for tn,t in enumerate(topics):
+            topicbutton = Button(str(t[0]),id="topic"+str(tn))
+            self.query_one("#topicbutton").mount(topicbutton)
+            topicbutton.scroll_visible()
+
 
     def compose(self) -> ComposeResult:
         yield Header()
         yield Button("Update",id="b",variant="error",classes="button")
-        yield ButtonText("Not Pressed",classes="box")
+        yield TopicButton("Not Pressed",classes="box")
+        yield Container(id="topicbutton")
         yield Footer()
 
     def action_toggle_dark(self) -> None:
